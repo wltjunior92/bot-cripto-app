@@ -10,19 +10,26 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "migrate": "npx prisma migrate dev --skip-seed",
+    "seed": "npx prisma db seed"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@rocketseat/eslint-config": "1.2.0",
+    "@types/aes-js": "3.1.1",
     "@types/bcryptjs": "2.4.2",
     "@types/node": "18.15.0",
     "@vitest/coverage-c8": "0.29.2",
     "@vitest/ui": "0.29.2",
     "eslint": "8.35.0",
     "prisma": "4.11.0",
+    "ts-node": "10.9.1",
     "tsup": "6.6.3",
     "tsx": "3.12.3",
     "typescipt": "1.0.0",
@@ -34,6 +41,7 @@
     "@fastify/helmet": "10.1.0",
     "@fastify/jwt": "6.7.0",
     "@prisma/client": "4.11.0",
+    "aes-js": "3.1.2",
     "bcryptjs": "2.4.3",
     "dotenv": "16.0.3",
     "fastify": "4.14.1",
