@@ -20,7 +20,20 @@ async function main() {
       ),
     },
   })
-  console.log({ defaultUser })
+
+  const defaultSymbol = await prisma.symbol.upsert({
+    where: { symbol: 'BTCBUSD' },
+    update: {},
+    create: {
+      symbol: 'BTCBUSD',
+      base_precision: 8,
+      quote_precision: 8,
+      min_notional: '0.1',
+      min_lot_size: '0.1',
+      is_favorite: true,
+    },
+  })
+  console.log({ defaultUser, defaultSymbol })
 }
 
 main()

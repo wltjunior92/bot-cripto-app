@@ -2,10 +2,24 @@ import { User, Prisma } from '@prisma/client'
 import { UsersRepository } from '../usersRepository'
 
 export class InMemoryUsersRepository implements UsersRepository {
-  public items: User[] = []
+  public items: User[] | Prisma.UserUpdateInput[] = []
+
+  async update(data: Prisma.UserUpdateInput, id: string): Promise<User> {
+    const userIndex = this.items.findIndex((item) => item.id === id)
+    let user = this.items[userIndex]
+
+    user = {
+      ...user,
+      ...data,
+    }
+
+    this.items[userIndex] = user
+
+    return user as User
+  }
 
   async findById(id: string) {
-    const user = this.items.find((item) => item.id === id)
+    const user = this.items.find((item) => item.id === id) as User
 
     if (!user) {
       return null
@@ -14,7 +28,7 @@ export class InMemoryUsersRepository implements UsersRepository {
   }
 
   async findByEmail(email: string) {
-    const user = this.items.find((item) => item.email === email)
+    const user = this.items.find((item) => item.email === email) as User
 
     if (!user) {
       return null

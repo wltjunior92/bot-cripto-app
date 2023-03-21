@@ -19,3 +19,15 @@ model User {
 
   @@map("users")
 }
+
+model Symbol {
+  symbol          String   @id @unique
+  base_precision  Int
+  quote_precision Int
+  min_notional    String
+  min_lot_size    String
+  is_favorite     Boolean  @default(false)
+  created_at      DateTime @default(now())
+
+  @@map("symbols")
+}

@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { makeGetUserServiceService } from '@/services/factories/makeGetUserDataService'
+import { makeGetUserDataService } from '@/services/factories/makeGetUserDataService'
 import { UserNotFoundError } from '@/errors/userNotFoundError'
 
 export async function getUserData(
@@ -9,7 +9,7 @@ export async function getUserData(
   const { sub } = request.user
 
   try {
-    const getUserDataService = makeGetUserServiceService()
+    const getUserDataService = makeGetUserDataService()
 
     const user = await getUserDataService.execute({ id: sub })
     return reply.status(201).send(user)
