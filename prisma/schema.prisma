@@ -23,7 +23,9 @@ model User {
 model Symbol {
   symbol          String   @id @unique
   base_precision  Int
+  base_asset      String?
   quote_precision Int
+  quote_asset     String?
   min_notional    String
   min_lot_size    String
   is_favorite     Boolean  @default(false)

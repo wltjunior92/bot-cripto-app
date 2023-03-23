@@ -1,3 +1,4 @@
+import { BinanceExchange } from '@/lib/exchanges/binance'
 import { SymbolsRepository } from '@/repositories/symbolsRepository'
 import { Prisma } from '@prisma/client'
 import { makeGetUserDataService } from './factories/makeGetUserDataService'
@@ -9,7 +10,9 @@ type SyncSymbolsServiceRequest = {
 type ExchangeSymbols = {
   symbol: string
   baseAssetPrecision: number
+  baseAsset: string
   quoteAssetPrecision: number
+  quoteAsset: string
   filters: {
     filterType: 'MIN_NOTIONAL' | 'LOT_SIZE'
     minNotional: string
@@ -24,22 +27,19 @@ export class SyncSymbolsService {
     const settingsService = makeGetUserDataService()
     const settings = await settingsService.execute({ id })
 
-    let formatedSettings
-    try {
-      formatedSettings = {
-        api_url: settings.apiUrl,
-        access_key: settings.accessKey,
-        secret_key: settings.secretKey,
-      }
-    } catch (error) {
-      console.log(error)
+    const formatedSettings = {
+      api_url: settings.apiUrl,
+      access_key: settings.accessKey,
+      secret_key: settings.secretKey,
     }
 
-    const { exchangeInfo } = require('../lib/exchanges/binance')(
-      formatedSettings,
-    )
+    const binance = new BinanceExchange(formatedSettings)
 
-    const { symbols: exchangeSymbols } = await exchangeInfo()
+    const { symbols: exchangeSymbols } = await binance.exchangeInfo()
+
+    const favoriteSymbols = (await this.symbolRepository.findFavorites()).map(
+      (s) => s.symbol,
+    )
 
     const symbols: Prisma.SymbolCreateManyInput[] = exchangeSymbols.map(
       (item: ExchangeSymbols) => {
@@ -53,10 +53,12 @@ export class SyncSymbolsService {
         return {
           symbol: item.symbol,
           base_precision: item.baseAssetPrecision,
+          base_asset: item.baseAsset,
           quote_precision: item.quoteAssetPrecision,
+          quote_asset: item.quoteAsset,
           min_notional: minNotionalFilter ? minNotionalFilter.minNotional : '1',
           min_lot_size: minLotSizeFilter ? minLotSizeFilter.minQty : '1',
-          is_favorite: false,
+          is_favorite: favoriteSymbols.some((s) => s === item.symbol),
         }
       },
     )

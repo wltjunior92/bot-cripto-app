@@ -5,6 +5,7 @@ import { decrypt } from '@/utils/crypto'
 
 interface GetUserDataServiceRequest {
   id: string
+  email?: string
 }
 
 interface GetUserDataServiceResponse extends UserDTO {}
@@ -14,8 +15,14 @@ export class GetUserDataService {
 
   async execute({
     id,
+    email,
   }: GetUserDataServiceRequest): Promise<GetUserDataServiceResponse> {
-    const user = await this.usersRepository.findById(id)
+    let user
+    if (id !== '') {
+      user = await this.usersRepository.findById(id)
+    } else if (email) {
+      user = await this.usersRepository.findByEmail(email)
+    }
 
     if (user) {
       return {

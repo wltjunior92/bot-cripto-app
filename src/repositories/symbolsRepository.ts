@@ -7,6 +7,7 @@ export interface SymbolsRepository {
     newSymbol: Prisma.SymbolUpdateInput,
   ): Promise<Symbol | null>
   findBySymbol(symbol: string): Promise<Symbol | null>
+  findFavorites(): Promise<Symbol[]>
   findAll(): Promise<Symbol[]>
   deleteAll(): Promise<void>
 }

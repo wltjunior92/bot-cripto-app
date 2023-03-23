@@ -48,6 +48,10 @@ export class InMemorySymbolsRepository implements SymbolsRepository {
     return this.items as Symbol[]
   }
 
+  async findFavorites(): Promise<Symbol[]> {
+    return this.items.filter((s) => s.is_favorite) as Symbol[]
+  }
+
   async deleteAll(): Promise<void> {
     this.items = []
   }

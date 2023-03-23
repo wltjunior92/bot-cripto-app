@@ -4,6 +4,7 @@ import { getSymbols } from './controllers/getSymbols'
 import { getUserData } from './controllers/getUserData'
 import { registerUser } from './controllers/registerUser'
 import { syncSymbols } from './controllers/syncSymbols'
+import { updateFavoriteSymbol } from './controllers/updateFavoriteSymbol'
 import { updateUser } from './controllers/updateUser'
 import { verifyJwt } from './middlewares/verifyJwt'
 
@@ -16,4 +17,5 @@ export async function appRoutes(app: FastifyInstance) {
 
   app.get('/symbol', { onRequest: [verifyJwt] }, getSymbols)
   app.post('/symbol/sync', { onRequest: [verifyJwt] }, syncSymbols)
+  app.patch('/symbol/:symbol', { onRequest: [verifyJwt] }, updateFavoriteSymbol)
 }

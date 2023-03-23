@@ -28,7 +28,17 @@ export class PrismaSymbolsRepository implements SymbolsRepository {
   }
 
   async findAll(): Promise<Symbol[]> {
-    const symbols = await prisma.symbol.findMany()
+    const symbols = await prisma.symbol.findMany({
+      orderBy: [{ is_favorite: 'desc' }],
+    })
+
+    return symbols
+  }
+
+  async findFavorites(): Promise<Symbol[]> {
+    const symbols = await prisma.symbol.findMany({
+      where: { is_favorite: true },
+    })
 
     return symbols
   }

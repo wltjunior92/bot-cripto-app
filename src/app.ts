@@ -5,6 +5,7 @@ import { ZodError } from 'zod'
 import { env } from './env'
 import fastifyJwt from '@fastify/jwt'
 import { fastifyCors } from '@fastify/cors'
+
 import './lib/exchanges/binance'
 
 export const app = fastify()

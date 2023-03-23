@@ -7,6 +7,7 @@ const envSchema = z.object({
   AES_KEY: z.string().length(32),
   CORS_ORIGIN: z.string(),
   PORT: z.coerce.number().default(3333),
+  DEFAULT_USER_EMAIL: z.string().email(),
 })
 
 const _env = envSchema.safeParse(process.env)
