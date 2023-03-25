@@ -30,6 +30,7 @@ export class SyncSymbolsService {
     const formatedSettings = {
       api_url: settings.apiUrl,
       access_key: settings.accessKey,
+      stream_url: settings.streamUrl,
       secret_key: settings.secretKey,
     }
 

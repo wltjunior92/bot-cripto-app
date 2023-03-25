@@ -3,7 +3,7 @@ import { UpdateUserService } from '../updateUserService'
 
 export function makeUpdateUserService() {
   const userRepository = new PrismaUsersRepository()
-  const updateUserService = new UpdateUserService(userRepository)
+  const service = new UpdateUserService(userRepository)
 
-  return updateUserService
+  return service
 }

@@ -3,6 +3,19 @@ import { Prisma, Symbol } from '@prisma/client'
 import { SymbolsRepository } from '../symbolsRepository'
 
 export class PrismaSymbolsRepository implements SymbolsRepository {
+  async findQuotes(): Promise<(string | null)[]> {
+    const dbQuotes = await prisma.symbol.findMany({
+      select: {
+        quote_asset: true,
+      },
+    })
+
+    const quotes = dbQuotes.map((q) => q.quote_asset)
+    const filteredQuotes = [...new Set(quotes)]
+
+    return filteredQuotes
+  }
+
   async sync(symbols: Prisma.SymbolCreateManyInput[]): Promise<void> {
     await prisma.symbol.createMany({
       data: symbols,

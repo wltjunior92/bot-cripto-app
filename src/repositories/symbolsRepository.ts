@@ -9,5 +9,6 @@ export interface SymbolsRepository {
   findBySymbol(symbol: string): Promise<Symbol | null>
   findFavorites(): Promise<Symbol[]>
   findAll(): Promise<Symbol[]>
+  findQuotes(): Promise<(string | null)[]>
   deleteAll(): Promise<void>
 }

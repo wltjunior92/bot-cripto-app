@@ -3,7 +3,7 @@ import { GetUserDataService } from '../getUserDataService'
 
 export function makeGetUserDataService() {
   const userRepository = new PrismaUsersRepository()
-  const getUserDataService = new GetUserDataService(userRepository)
+  const service = new GetUserDataService(userRepository)
 
-  return getUserDataService
+  return service
 }

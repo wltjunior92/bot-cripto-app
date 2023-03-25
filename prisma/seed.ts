@@ -5,7 +5,7 @@ import { hash } from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  const defaultUser = await prisma.user.upsert({
+  const defaultUserDev = await prisma.user.upsert({
     where: { email: 'wlt.junior92@gmail.com' },
     update: {},
     create: {
@@ -13,6 +13,24 @@ async function main() {
       name: 'Walter Júnior',
       password_hash: await hash('12345678', 6),
       api_url: 'https://testnet.binance.vision/api/',
+      stream_url: 'wss://testnet.binance.vision/ws/',
+      access_key:
+        'ghkfV32HFCCUdGiwHeFtZXohphFFrvWisHxMAWOuMMIqKClib2Sbwkd10iDUfxXn',
+      secret_key_hash: encrypt(
+        'BtFDDb1yAhXZdk5yasEe6g8C3dVDuWUNL09LryWIyTyfUwkulTifoaFnXN19QvdP',
+      ),
+    },
+  })
+
+  const defaultUserProd = await prisma.user.upsert({
+    where: { email: 'wlt.junior.pdt@gmail.com' },
+    update: {},
+    create: {
+      email: 'wlt.junior.pdt@gmail.com',
+      name: 'Walter Júnior',
+      password_hash: await hash('12345678', 6),
+      api_url: 'https://testnet.binance.vision/api/',
+      stream_url: 'wss://stream.binance.com:9443/ws',
       access_key:
         'ghkfV32HFCCUdGiwHeFtZXohphFFrvWisHxMAWOuMMIqKClib2Sbwkd10iDUfxXn',
       secret_key_hash: encrypt(
@@ -33,7 +51,7 @@ async function main() {
       is_favorite: true,
     },
   })
-  console.log({ defaultUser, defaultSymbol })
+  console.log({ defaultUserDev, defaultUserProd, defaultSymbol })
 }
 
 main()

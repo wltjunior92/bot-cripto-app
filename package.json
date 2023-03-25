@@ -24,6 +24,7 @@
     "@rocketseat/eslint-config": "1.2.0",
     "@types/aes-js": "3.1.1",
     "@types/bcryptjs": "2.4.2",
+    "@types/jsonwebtoken": "9.0.1",
     "@types/node": "18.15.0",
     "@types/ws": "8.5.4",
     "@vitest/coverage-c8": "0.29.2",
@@ -38,6 +39,7 @@
     "vitest": "0.29.2"
   },
   "dependencies": {
+    "@fastify/cookie": "8.3.0",
     "@fastify/cors": "8.2.1",
     "@fastify/helmet": "10.1.0",
     "@fastify/jwt": "6.7.0",
@@ -46,6 +48,7 @@
     "bcryptjs": "2.4.3",
     "dotenv": "16.0.3",
     "fastify": "4.14.1",
+    "jsonwebtoken": "9.0.0",
     "node-binance-api": "0.13.1",
     "ws": "8.13.0",
     "zod": "3.21.4"

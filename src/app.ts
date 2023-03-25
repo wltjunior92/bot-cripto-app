@@ -1,5 +1,6 @@
 import fastify from 'fastify'
-import helmet from '@fastify/helmet'
+import fastifyHelmet from '@fastify/helmet'
+import fastifyCookie from '@fastify/cookie'
 import { appRoutes } from './http/routes'
 import { ZodError } from 'zod'
 import { env } from './env'
@@ -9,13 +10,21 @@ import { fastifyCors } from '@fastify/cors'
 import './lib/exchanges/binance'
 
 export const app = fastify()
-app.register(helmet, { global: true })
+app.register(fastifyHelmet, { global: true })
+app.register(fastifyCookie)
 app.register(fastifyCors, {
   origin: env.CORS_ORIGIN,
 })
 
 app.register(fastifyJwt, {
   secret: env.JWT_SECRET,
+  cookie: {
+    cookieName: 'refreshToken',
+    signed: false,
+  },
+  sign: {
+    expiresIn: env.JWT_EXPIRES_IN,
+  },
 })
 
 app.register(appRoutes)

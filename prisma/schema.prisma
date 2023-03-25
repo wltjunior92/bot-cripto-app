@@ -13,6 +13,7 @@ model User {
   email           String   @unique
   password_hash   String
   api_url         String?
+  stream_url      String?
   access_key      String?
   secret_key_hash String?
   created_at      DateTime @default(now())

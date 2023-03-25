@@ -1,4 +1,6 @@
+import { env } from '@/env'
 import { IncomingMessage, Server, ServerResponse } from 'http'
+import jwt from 'jsonwebtoken'
 import WebSocket from 'ws'
 
 function onError(err: Error) {
@@ -22,11 +24,40 @@ function onConnection(
   console.log('WS On Connection')
 }
 
+function corsValidation(origin: string) {
+  return env.CORS_ORIGIN.startsWith(origin)
+}
+
+function verifyClient(
+  info: any,
+  callback: (result: boolean, errorCode: number) => void,
+) {
+  const isCorsValidated = corsValidation(info.origin)
+  if (!isCorsValidated) {
+    return callback(isCorsValidated, 401)
+  }
+
+  const [, token] = info.req.url.split('token=')
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, env.JWT_SECRET)
+      if (decoded) {
+        return callback(true, 200)
+      }
+    } catch (error) {
+      console.log(token, error)
+    }
+  }
+  callback(false, 401)
+}
+
 export function webSocketModule(
   server: Server<typeof IncomingMessage, typeof ServerResponse>,
 ) {
   const wss = new WebSocket.Server({
     server,
+    verifyClient,
   })
 
   wss.on('connection', onConnection)

@@ -3,7 +3,7 @@ import { GetSymbolsService } from '../getSymbolsService'
 
 export function makeGetSymbolsService() {
   const symbolsRepository = new PrismaSymbolsRepository()
-  const getSymbolsService = new GetSymbolsService(symbolsRepository)
+  const service = new GetSymbolsService(symbolsRepository)
 
-  return getSymbolsService
+  return service
 }

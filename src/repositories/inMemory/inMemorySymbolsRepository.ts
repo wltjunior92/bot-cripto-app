@@ -6,13 +6,21 @@ export class InMemorySymbolsRepository implements SymbolsRepository {
     {
       symbol: 'BTCBUSD',
       base_precision: 8,
+      base_asset: 'BTC',
       quote_precision: 8,
+      quote_asset: 'BUSD',
       min_notional: '0.1',
       min_lot_size: '0.1',
       is_favorite: true,
       created_at: new Date(),
     },
   ]
+
+  async findQuotes(): Promise<(string | null)[]> {
+    const quotes = this.items.map((q) => q.quote_asset)
+
+    return quotes as (string | null)[]
+  }
 
   async sync(symbols: Prisma.SymbolCreateManyInput[]): Promise<void> {
     throw new Error('Method not implemented.')

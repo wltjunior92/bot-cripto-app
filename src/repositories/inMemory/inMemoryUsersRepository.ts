@@ -43,6 +43,7 @@ export class InMemoryUsersRepository implements UsersRepository {
       email: data.email,
       password_hash: data.password_hash,
       api_url: data.api_url as string | null,
+      stream_url: data.stream_url as string | null,
       access_key: data.access_key as string | null,
       secret_key_hash: data.secret_key_hash as string | null,
       created_at: new Date(),

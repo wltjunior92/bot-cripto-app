@@ -29,6 +29,7 @@ export class GetUserDataService {
         name: user.name,
         email: user.email,
         apiUrl: user.api_url || '',
+        streamUrl: user.stream_url || '',
         accessKey: user.access_key || '',
         secretKey: user.secret_key_hash ? decrypt(user.secret_key_hash) : '',
       }

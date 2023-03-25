@@ -8,13 +8,14 @@ export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
       name: z.string().nullable(),
       password: z.string().nullable(),
       apiUrl: z.string().nullable(),
+      streamUrl: z.string().nullable(),
       accessKey: z.string().nullable(),
       secretKey: z.string().nullable(),
     }),
   })
 
   const {
-    user: { name, password, apiUrl, accessKey, secretKey },
+    user: { name, password, apiUrl, accessKey, streamUrl, secretKey },
   } = updateUserBodySchema.parse(request.body)
 
   const { sub } = request.user
@@ -26,6 +27,7 @@ export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
     name,
     password,
     apiUrl,
+    streamUrl,
     accessKey,
     secretKey,
   })

@@ -9,6 +9,7 @@ interface UpdateUserServiceRequest {
   name?: string | null
   password?: string | null
   apiUrl?: string | null
+  streamUrl?: string | null
   accessKey?: string | null
   secretKey?: string | null
 }
@@ -25,6 +26,7 @@ export class UpdateUserService {
     name,
     password,
     apiUrl,
+    streamUrl,
     accessKey,
     secretKey,
   }: UpdateUserServiceRequest): Promise<UpdateUserServiceResponse> {
@@ -41,6 +43,13 @@ export class UpdateUserService {
       updatedUser = {
         ...updatedUser,
         api_url: apiUrl,
+      }
+    }
+
+    if (streamUrl) {
+      updatedUser = {
+        ...updatedUser,
+        stream_url: streamUrl,
       }
     }
 
@@ -73,6 +82,7 @@ export class UpdateUserService {
       name: user.name,
       email: user.email,
       apiUrl: user.api_url || '',
+      streamUrl: user.stream_url || '',
       accessKey: user.access_key || '',
       secretKey: user.secret_key_hash ? decrypt(user.secret_key_hash) : '',
     }

@@ -11,6 +11,7 @@ settingsService
   .then((settings) => {
     const formatedSettings = {
       api_url: settings.apiUrl,
+      stream_url: settings.streamUrl,
       access_key: settings.accessKey,
       secret_key: settings.secretKey,
     }
