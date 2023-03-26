@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { authenticate } from './controllers/authenticate'
 import { getBalance } from './controllers/getBalance'
 import { getQuotes } from './controllers/getQuotes'
+import { getSymbol } from './controllers/getSymbol'
 import { getSymbols } from './controllers/getSymbols'
 import { getUserData } from './controllers/getUserData'
 import { refresh } from './controllers/refresh'
@@ -22,6 +23,7 @@ export async function appRoutes(app: FastifyInstance) {
 
   app.get('/symbol', { onRequest: [verifyJwt] }, getSymbols)
   app.get('/symbol/quotes', { onRequest: [verifyJwt] }, getQuotes)
+  app.get('/symbol/:symbol', { onRequest: [verifyJwt] }, getSymbol)
   app.post('/symbol/sync', { onRequest: [verifyJwt] }, syncSymbols)
   app.patch('/symbol/:symbol', { onRequest: [verifyJwt] }, updateFavoriteSymbol)
 
