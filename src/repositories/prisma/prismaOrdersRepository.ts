@@ -9,15 +9,16 @@ export class PrismaOrdersRepository implements OrdersRepository {
   }: {
     symbol?: string
     page?: number | undefined
-  }): Promise<{ orders: Order[]; totalCount: number }> {
+  }): Promise<{ orders: Order[]; totalCount: number; pageQty: number }> {
+    const pageQty = 2
     const options: Prisma.OrderFindManyArgs = {
       orderBy: [
         {
           updated_at: 'desc',
         },
       ],
-      take: 10,
-      skip: 10 * (page - 1),
+      take: pageQty,
+      skip: pageQty * (page - 1),
     }
 
     if (symbol) {
@@ -41,6 +42,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return {
       orders,
       totalCount,
+      pageQty,
     }
   }
 

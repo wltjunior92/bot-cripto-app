@@ -18,7 +18,11 @@ export async function getOrders(request: FastifyRequest, reply: FastifyReply) {
   const symbol = searchSymbol ? searchSymbol.toUpperCase() : undefined
   const getOrdersService = makeGetOrdersService()
 
-  const { orders, totalCount: count } = await getOrdersService.execute({
+  const {
+    orders,
+    totalCount: count,
+    pageQty,
+  } = await getOrdersService.execute({
     symbol,
     page,
   })
@@ -26,5 +30,6 @@ export async function getOrders(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send({
     orders,
     count,
+    page_qty: pageQty,
   })
 }

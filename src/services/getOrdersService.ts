@@ -9,6 +9,7 @@ interface GetOrdersServiceRequest {
 interface GetOrdersServiceResponse {
   orders: Order[]
   totalCount: number
+  pageQty: number
 }
 
 export class GetOrdersService {
@@ -18,14 +19,16 @@ export class GetOrdersService {
     symbol,
     page,
   }: GetOrdersServiceRequest): Promise<GetOrdersServiceResponse> {
-    const { orders, totalCount } = await this.ordersRepository.getOrders({
-      symbol,
-      page,
-    })
+    const { orders, totalCount, pageQty } =
+      await this.ordersRepository.getOrders({
+        symbol,
+        page,
+      })
 
     return {
       orders,
       totalCount,
+      pageQty,
     }
   }
 }

@@ -7,7 +7,7 @@ export interface OrdersRepository {
   }: {
     symbol?: string
     page?: number
-  }): Promise<{ orders: Order[]; totalCount: number }>
+  }): Promise<{ orders: Order[]; totalCount: number; pageQty: number }>
   create(newOrder: Prisma.OrderCreateInput): Promise<Order | null>
   findById(id: string): Promise<Order | null>
   findByOrderId(orderId: string, clientOrderId: string): Promise<Order | null>
