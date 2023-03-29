@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "orders" ALTER COLUMN "order_id" SET DATA TYPE DECIMAL(65,30),
+ALTER COLUMN "transact_time" SET DATA TYPE DECIMAL(65,30);

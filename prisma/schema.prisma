@@ -34,3 +34,28 @@ model Symbol {
 
   @@map("symbols")
 }
+
+model Order {
+  id               String   @id @default(uuid())
+  automation_id    String?
+  symbol           String
+  order_id         Decimal  @unique
+  client_order_id  String
+  transact_time    Decimal
+  order_type       String
+  order_side       String
+  order_status     String
+  is_maker         Boolean?
+  limit_price      String?
+  stop_price       String?
+  avg_price        Decimal? @db.Decimal(18, 8)
+  commission       String?
+  net              Decimal? @db.Decimal(18, 8)
+  quantity         String
+  iceberg_quantity String?
+  obs              String?
+  updated_at       DateTime @updatedAt
+  created_at       DateTime @default(now())
+
+  @@map("orders")
+}

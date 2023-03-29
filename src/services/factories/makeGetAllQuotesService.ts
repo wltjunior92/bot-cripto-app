@@ -2,8 +2,8 @@ import { PrismaSymbolsRepository } from '@/repositories/prisma/prismaSymbolsRepo
 import { GetAllQuotesService } from '../getAllQuotesService'
 
 export function makeGetAllQuotesService() {
-  const symbolRepository = new PrismaSymbolsRepository()
-  const service = new GetAllQuotesService(symbolRepository)
+  const repository = new PrismaSymbolsRepository()
+  const service = new GetAllQuotesService(repository)
 
   return service
 }

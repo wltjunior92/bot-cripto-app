@@ -40,6 +40,34 @@ export class BinanceExchange {
     return await this.binance.exchangeInfo()
   }
 
+  async buy(
+    symbol: string,
+    quantity: string,
+    options: any,
+    limit_price?: string | null | undefined,
+  ) {
+    if (limit_price) {
+      return this.binance.buy(symbol, quantity, limit_price, options)
+    }
+    return this.binance.marketBuy(symbol, quantity)
+  }
+
+  async sell(
+    symbol: string,
+    quantity: string,
+    options: any,
+    limit_price?: string | null | undefined,
+  ) {
+    if (limit_price) {
+      return this.binance.sell(symbol, quantity, limit_price, options)
+    }
+    return this.binance.marketSell(symbol, quantity)
+  }
+
+  async cancel(symbol: string, order_id: string) {
+    return this.binance.cancel(symbol, order_id)
+  }
+
   async miniTickerStream(callback: (markets: any[]) => void) {
     this.binance.websockets.miniTicker((markets) => callback(markets))
   }

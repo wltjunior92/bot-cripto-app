@@ -2,8 +2,8 @@ import { PrismaSymbolsRepository } from '@/repositories/prisma/prismaSymbolsRepo
 import { UpdateFavoriteSymbolService } from '../updateFavoriteSymbolService'
 
 export function makeUpdateFavoriteSymbolService() {
-  const symbolsRepository = new PrismaSymbolsRepository()
-  const service = new UpdateFavoriteSymbolService(symbolsRepository)
+  const repository = new PrismaSymbolsRepository()
+  const service = new UpdateFavoriteSymbolService(repository)
 
   return service
 }

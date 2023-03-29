@@ -2,8 +2,8 @@ import { PrismaSymbolsRepository } from '@/repositories/prisma/prismaSymbolsRepo
 import { SyncSymbolsService } from '../syncSymbolsService'
 
 export function makeSyncSymbolsService() {
-  const symbolsRepository = new PrismaSymbolsRepository()
-  const service = new SyncSymbolsService(symbolsRepository)
+  const repository = new PrismaSymbolsRepository()
+  const service = new SyncSymbolsService(repository)
 
   return service
 }
