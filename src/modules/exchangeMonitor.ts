@@ -4,6 +4,7 @@ import { PrismaOrdersRepository } from '@/repositories/prisma/prismaOrdersReposi
 import { Prisma } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime'
 import { Server, WebSocket } from 'ws'
+import * as tecIndicators from 'technicalindicators'
 
 export type Settings = {
   access_key: string
@@ -48,7 +49,26 @@ export class ExchangeMonitor {
       },
     )
 
+    await this.exchange.chartStream('BTCUSDT', '1m', (ohlc: any) => {
+      this.processChartData(ohlc.close, (msg: any) => {
+        console.log(msg)
+      })
+    })
+
     console.log('Exchange Monitor is running!')
+  }
+
+  processChartData(closes: any, callback: any) {
+    const rsi = this.calcRSI(closes)
+    console.log(rsi)
+  }
+
+  calcRSI(closes: any) {
+    const rsiResult = tecIndicators.rsi({
+      period: 14,
+      values: closes,
+    })
+    return parseFloat(`${rsiResult.pop()}`)
   }
 
   async processExecutionData(executionData: any) {

@@ -48,6 +48,59 @@ export class PrismaSymbolsRepository implements SymbolsRepository {
     return symbols
   }
 
+  async searchSymbols({
+    search,
+    onlyFavorites = false,
+    page = 1,
+  }: {
+    search?: string
+    onlyFavorites?: boolean
+    page?: number
+  }): Promise<{ symbols: Symbol[]; totalCount: number; pageQty: number }> {
+    const pageQty = 10
+    const options: Prisma.SymbolFindManyArgs = {
+      orderBy: [
+        {
+          symbol: 'asc',
+        },
+      ],
+      take: pageQty,
+      skip: pageQty * (page - 1),
+    }
+    if (search) {
+      if (search.length < 6) {
+        options.where = {
+          symbol: {
+            contains: search,
+          },
+        }
+      } else {
+        options.where = {
+          symbol: search,
+        }
+      }
+    }
+    if (onlyFavorites) {
+      if (options.where) {
+        options.where.is_favorite = true
+      } else {
+        options.where = {
+          is_favorite: true,
+        }
+      }
+    }
+    const [totalCount, symbols] = await prisma.$transaction([
+      prisma.symbol.count(),
+      prisma.symbol.findMany(options),
+    ])
+
+    return {
+      symbols,
+      totalCount,
+      pageQty,
+    }
+  }
+
   async findFavorites(): Promise<Symbol[]> {
     const symbols = await prisma.symbol.findMany({
       where: { is_favorite: true },

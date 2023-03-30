@@ -1,4 +1,5 @@
 import { InvalidExchangeSettingsError } from '@/errors/invalidExchangeSettingsError'
+// @ts-ignore: Unreachable code error
 import Binance from 'node-binance-api'
 
 type Settings = {
@@ -47,9 +48,9 @@ export class BinanceExchange {
     limit_price?: string | null | undefined,
   ) {
     if (limit_price) {
-      return this.binance.buy(symbol, quantity, limit_price, options)
+      return await this.binance.buy(symbol, quantity, limit_price, options)
     }
-    return this.binance.marketBuy(symbol, quantity)
+    return await this.binance.marketBuy(symbol, quantity)
   }
 
   async sell(
@@ -59,17 +60,17 @@ export class BinanceExchange {
     limit_price?: string | null | undefined,
   ) {
     if (limit_price) {
-      return this.binance.sell(symbol, quantity, limit_price, options)
+      return await this.binance.sell(symbol, quantity, limit_price, options)
     }
-    return this.binance.marketSell(symbol, quantity)
+    return await this.binance.marketSell(symbol, quantity)
   }
 
   async cancel(symbol: string, order_id: string) {
-    return this.binance.cancel(symbol, order_id)
+    return await this.binance.cancel(symbol, order_id)
   }
 
   async miniTickerStream(callback: (markets: any[]) => void) {
-    this.binance.websockets.miniTicker((markets) => callback(markets))
+    this.binance.websockets.miniTicker((markets: any) => callback(markets))
   }
 
   async bookStream(callback: (order: any) => void) {
@@ -82,16 +83,40 @@ export class BinanceExchange {
     listStatusCallback?: (listStatusData: any) => void,
   ) {
     this.binance.websockets.userData(
-      (balance) => balanceCallback(balance),
-      (executionData) => executionCallback(executionData),
-      (subscribedData) =>
+      (balance: any) => balanceCallback(balance),
+      (executionData: any) => executionCallback(executionData),
+      (subscribedData: any) =>
         console.log(`userDataStream:subscribed: ${subscribedData}`),
-      (listStatusData) => {
+      (listStatusData: any) => {
         if (listStatusCallback) {
           listStatusCallback(listStatusData)
         } else {
           console.log(listStatusData)
         }
+      },
+    )
+  }
+
+  async orderStatus(symbol: string, orderId: string) {
+    return await this.binance.orderStatus(symbol, orderId)
+  }
+
+  async orderTrade(symbol: string, orderId: string) {
+    const trades = await this.binance.trades(symbol)
+    return trades.find((t: any) => t.orderId === parseFloat(orderId))
+  }
+
+  async chartStream(
+    symbol: string,
+    interval: string,
+    callback: (value: any) => void,
+  ) {
+    this.binance.websockets.chart(
+      symbol,
+      interval,
+      (symbol: any, interval: any, chart: any) => {
+        const ohcl = this.binance.ohlc(chart)
+        callback(ohcl)
       },
     )
   }

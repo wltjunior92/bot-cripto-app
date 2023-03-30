@@ -18,9 +18,9 @@ export async function cancelOrder(
   const { symbol, orderId } = cancelOrdersParamsSchema.parse(request.params)
 
   try {
-    const placeOrderService = makeCancelOrderService()
+    const cancelOrderService = makeCancelOrderService()
 
-    const { order } = await placeOrderService.execute({
+    const { order } = await cancelOrderService.execute({
       symbol,
       orderId,
       userId: sub,

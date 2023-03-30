@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
+
 import { makeGetSymbolsService } from '@/services/factories/makeGetSymbolsService'
 
 export async function getSymbols(request: FastifyRequest, reply: FastifyReply) {

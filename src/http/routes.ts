@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { authenticate } from './controllers/authenticate'
 import { cancelOrder } from './controllers/cancelOrder'
 import { getBalance } from './controllers/getBalance'
+import { getOrder } from './controllers/getOrder'
 import { getOrders } from './controllers/getOrders'
 import { getQuotes } from './controllers/getQuotes'
 import { getSymbol } from './controllers/getSymbol'
@@ -10,6 +11,8 @@ import { getUserData } from './controllers/getUserData'
 import { placeOrder } from './controllers/placeOrder'
 import { refresh } from './controllers/refresh'
 import { registerUser } from './controllers/registerUser'
+import { searchSymbols } from './controllers/searchSymbols'
+import { syncOrder } from './controllers/syncOrder'
 import { syncSymbols } from './controllers/syncSymbols'
 import { updateFavoriteSymbol } from './controllers/updateFavoriteSymbol'
 import { updateUser } from './controllers/updateUser'
@@ -25,13 +28,16 @@ export async function appRoutes(app: FastifyInstance) {
   app.patch('/userData', { onRequest: [verifyJwt] }, updateUser)
 
   app.get('/symbol', { onRequest: [verifyJwt] }, getSymbols)
+  app.get('/symbol/search', { onRequest: [verifyJwt] }, searchSymbols)
+  app.get('/symbol/one/:symbol', { onRequest: [verifyJwt] }, getSymbol)
   app.get('/symbol/quotes', { onRequest: [verifyJwt] }, getQuotes)
-  app.get('/symbol/:symbol', { onRequest: [verifyJwt] }, getSymbol)
   app.post('/symbol/sync', { onRequest: [verifyJwt] }, syncSymbols)
   app.patch('/symbol/:symbol', { onRequest: [verifyJwt] }, updateFavoriteSymbol)
 
   app.get('/orders/:symbol?', { onRequest: [verifyJwt] }, getOrders)
+  app.get('/orders/findById/:id', { onRequest: [verifyJwt] }, getOrder)
   app.post('/orders', { onRequest: [verifyJwt] }, placeOrder)
+  app.post('/orders/sync/:orderId', { onRequest: [verifyJwt] }, syncOrder)
   app.delete(
     '/orders/:symbol/:orderId',
     { onRequest: [verifyJwt] },

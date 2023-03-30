@@ -10,7 +10,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
     symbol?: string
     page?: number | undefined
   }): Promise<{ orders: Order[]; totalCount: number; pageQty: number }> {
-    const pageQty = 2
+    const pageQty = 10
     const options: Prisma.OrderFindManyArgs = {
       orderBy: [
         {
