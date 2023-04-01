@@ -8,9 +8,9 @@ export async function syncSymbols(
   const { sub } = request.user
 
   try {
-    const syncSymbolsService = makeSyncSymbolsService()
+    const service = makeSyncSymbolsService()
 
-    await syncSymbolsService.execute({ id: sub })
+    await service.execute({ id: sub })
 
     return reply.status(200).send()
   } catch (error) {

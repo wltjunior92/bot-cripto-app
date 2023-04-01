@@ -3,15 +3,15 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
 
 export async function getOrder(request: FastifyRequest, reply: FastifyReply) {
-  const getOrderParamsSchema = z.object({
+  const paramsSchema = z.object({
     id: z.string(),
   })
 
-  const { id } = getOrderParamsSchema.parse(request.params)
+  const { id } = paramsSchema.parse(request.params)
 
-  const getOrdersService = makeGetOrderService()
+  const service = makeGetOrderService()
 
-  const { order } = await getOrdersService.execute({
+  const { order } = await service.execute({
     id,
   })
 

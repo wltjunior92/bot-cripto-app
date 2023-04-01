@@ -7,7 +7,7 @@ export async function searchSymbols(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const getSymbolsQuerySchema = z.object({
+  const querySchema = z.object({
     search: z.string().optional(),
     onlyFavorites: z.string().optional(),
     page: z.string().optional(),
@@ -17,18 +17,18 @@ export async function searchSymbols(
     search: searchTerm,
     onlyFavorites: favorites,
     page: searchPage,
-  } = getSymbolsQuerySchema.parse(request.query)
+  } = querySchema.parse(request.query)
 
   const search = searchTerm ? searchTerm.toUpperCase() : undefined
   const onlyFavorites = !!favorites
   const page = searchPage ? parseInt(searchPage) : undefined
-  const searchSymbolsService = makeSearchSymbolsService()
+  const service = makeSearchSymbolsService()
 
   const {
     symbols,
     totalCount: count,
     pageQty,
-  } = await searchSymbolsService.execute({
+  } = await service.execute({
     search,
     onlyFavorites,
     page,

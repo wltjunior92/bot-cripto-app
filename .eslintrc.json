@@ -5,6 +5,8 @@
   "rules": {
     "camelcase": "off",
     "no-useless-constructor": "off",
-    "n/no-callback-literal": "off"
+    "n/no-callback-literal": "off",
+    "array-callback-return": "off",
+    "no-new": "off"
   }
 }

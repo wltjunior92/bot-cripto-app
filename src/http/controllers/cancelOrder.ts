@@ -10,17 +10,17 @@ export async function cancelOrder(
 ) {
   const { sub } = request.user
 
-  const cancelOrdersParamsSchema = z.object({
+  const paramsSchema = z.object({
     symbol: z.string(),
     orderId: z.string(),
   })
 
-  const { symbol, orderId } = cancelOrdersParamsSchema.parse(request.params)
+  const { symbol, orderId } = paramsSchema.parse(request.params)
 
   try {
-    const cancelOrderService = makeCancelOrderService()
+    const service = makeCancelOrderService()
 
-    const { order } = await cancelOrderService.execute({
+    const { order } = await service.execute({
       symbol,
       orderId,
       userId: sub,

@@ -4,7 +4,10 @@ import { PrismaOrdersRepository } from '@/repositories/prisma/prismaOrdersReposi
 import { Prisma } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime'
 import { Server, WebSocket } from 'ws'
-import * as tecIndicators from 'technicalindicators'
+
+import { makeGetActiveMonitorsService } from '@/services/factories/makeGetActiveMonitorsService'
+import * as sysIndexes from '../utils/indexes'
+import { indexKeys, monitorTypes } from '@/utils/constants'
 
 export type Settings = {
   access_key: string
@@ -16,62 +19,111 @@ export type Settings = {
 export class ExchangeMonitor {
   private exchange
   private wss
+  private beholder
 
-  constructor(settings: Settings, wss: Server<WebSocket>) {
-    if (!settings) {
+  constructor(
+    settings: Settings,
+    wss: Server<WebSocket>,
+    beholderInstance: any,
+  ) {
+    if (!settings || !beholderInstance) {
       throw new InvalidExchangeSettingsError('ExchangeMonitor')
     }
 
     this.exchange = new BinanceExchange(settings)
     this.wss = wss
+    this.beholder = beholderInstance
+
+    const getActiveMonitorsService = makeGetActiveMonitorsService()
+    getActiveMonitorsService
+      .execute()
+      .then((monitors) => {
+        monitors.map((monitor) => {
+          setTimeout(() => {
+            switch (monitor.type) {
+              case monitorTypes.MINI_TICKER:
+                return this.startMiniTickerMonitor(
+                  monitor.broadcast_label,
+                  monitor.logs,
+                )
+              // case monitorTypes.BOOK:
+              case monitorTypes.USER_DATA:
+                return this.startUserDataMonitor(
+                  monitor.broadcast_label,
+                  monitor.logs,
+                )
+              case monitorTypes.CANDLES:
+                return this.startChartMonitor(
+                  monitor.symbol,
+                  monitor.interval,
+                  monitor.indexes?.split(',') || [],
+                  monitor.broadcast_label,
+                  monitor.logs,
+                )
+            }
+          }, 250)
+        })
+      })
+      .catch((error) => console.error(error))
+      .finally(() => console.log('Exchange Monitor is running!'))
   }
 
-  async execute() {
-    await this.exchange.miniTickerStream((markets) => {
-      // console.log(markets)
-      if (!this.wss || !this.wss.clients) return
-      this.broadcast({ miniTicker: markets })
+  async startMiniTickerMonitor(broadcastLabel: string | null, logs: boolean) {
+    if (!this.exchange)
+      return new Error('ExchangeMonitor ainda não foi inicializado.')
+    this.exchange.miniTickerStream((markets) => {
+      if (logs) console.log(markets)
 
-      const book = Object.entries(markets).map((mkt) => {
+      // enviar para o beholders
+
+      if (broadcastLabel && this.wss) {
+        this.broadcast({ [broadcastLabel]: markets })
+      }
+
+      // simulação de book
+      const books = Object.entries(markets).map((mkt) => {
         return { symbol: mkt[0], bestAsk: mkt[1].close, bestBid: mkt[1].close }
       })
-
-      this.broadcast({ book })
+      if (this.wss) {
+        this.broadcast({ book: books })
+      }
+      // fim da simulação de book
     })
+    console.log(`Mini-Ticker Monitor has started at ${broadcastLabel}!`)
+  }
 
-    await this.exchange.userDataStream(
-      (balanceData) => {
+  async startUserDataMonitor(broadcastLabel: string | null, logs: boolean) {
+    if (!this.exchange)
+      return new Error('ExchangeMonitor ainda não foi inicializado.')
+
+    const result = broadcastLabel?.split(',')
+    const balanceBroadcast = result ? result[0] : null
+    const executionBroadcast = result ? result[1] : null
+
+    await this.loadWallet()
+
+    this.exchange.userDataStream(
+      async (balanceData) => {
         if (!this.wss || !this.wss.clients) return
-        this.broadcast({ balance: balanceData })
+        if (logs) console.log(balanceData)
+        const wallet = await this.loadWallet()
+
+        if (balanceBroadcast && this.wss) {
+          this.broadcast({ [balanceBroadcast]: wallet })
+        }
       },
       (executionData) => {
-        this.processExecutionData(executionData)
+        if (logs) console.log(executionData)
+        this.processExecutionData(executionData, executionBroadcast)
       },
     )
-
-    await this.exchange.chartStream('BTCUSDT', '1m', (ohlc: any) => {
-      this.processChartData(ohlc.close, (msg: any) => {
-        console.log(msg)
-      })
-    })
-
-    console.log('Exchange Monitor is running!')
+    console.log(`User Data Monitor has started at ${broadcastLabel}!`)
   }
 
-  processChartData(closes: any, callback: any) {
-    const rsi = this.calcRSI(closes)
-    console.log(rsi)
-  }
-
-  calcRSI(closes: any) {
-    const rsiResult = tecIndicators.rsi({
-      period: 14,
-      values: closes,
-    })
-    return parseFloat(`${rsiResult.pop()}`)
-  }
-
-  async processExecutionData(executionData: any) {
+  async processExecutionData(
+    executionData: any,
+    broadcastLabel: string | null,
+  ) {
     if (executionData.x === 'NEW') return
 
     const order: Prisma.OrderUpdateInput = {
@@ -108,10 +160,87 @@ export class ExchangeMonitor {
       ordersRepository
         .updateByOrderId(`${order.order_id}`, `${order.client_order_id}`, order)
         .then((order) => {
-          this.broadcast({ execution: order })
+          if (order) {
+            // enviar para o beholder
+            if (broadcastLabel && this.wss) {
+              this.broadcast({ [broadcastLabel]: order })
+            }
+          }
         })
         .catch((error) => console.error(error))
     }, 1000)
+  }
+
+  startChartMonitor(
+    symbol: string,
+    interval: string | null,
+    indexes: string[],
+    broadcastLabel: string | null,
+    logs: boolean,
+  ) {
+    if (!symbol)
+      return new Error(`You can't start a chart monitor without a symbol`)
+    if (!this.exchange)
+      return new Error('ExchangeMonitor ainda não foi inicializado.')
+
+    this.exchange.chartStream(symbol, interval || '1m', (ohlc: any) => {
+      const lastCandle = {
+        open: ohlc.open.pop(),
+        close: ohlc.close.pop(),
+        high: ohlc.high.pop(),
+        low: ohlc.low.pop(),
+      }
+
+      if (logs) console.log(lastCandle)
+
+      // enviar para o beholder
+
+      if (broadcastLabel && this.wss) {
+        this.broadcast(lastCandle)
+      }
+
+      this.processChartData(symbol, indexes, interval, ohlc)
+    })
+    console.log(`Chart Monitor has started at ${symbol}_${interval}!`)
+  }
+
+  async loadWallet() {
+    if (!this.exchange)
+      return new Error('ExchangeMonitor ainda não foi inicializado.')
+    const info = await this.exchange.balance()
+    const wallet = Object.entries(info).map((item: any) => {
+      // enviar para o beholder
+      return {
+        symbol: item[0],
+        available: item[1].available,
+        onOrder: item[1].onOrder,
+      }
+    })
+    return wallet
+  }
+
+  processChartData(
+    symbol: string,
+    indexes: string[],
+    interval: string | null,
+    ohlc: any,
+  ) {
+    indexes.map((index) => {
+      switch (index) {
+        case indexKeys.RSI: {
+          // sysIndexes.RSI(ohlc.close)
+          // calc enviar beholder
+          break
+        }
+        case indexKeys.MACD: {
+          // sysIndexes.MACD(ohlc.close)
+          // calc enviar beholder
+          break
+        }
+        default:
+          break
+      }
+    })
   }
 
   broadcast(message: any) {

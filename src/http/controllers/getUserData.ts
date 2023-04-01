@@ -9,9 +9,9 @@ export async function getUserData(
   const { sub } = request.user
 
   try {
-    const getUserDataService = makeGetUserDataService()
+    const service = makeGetUserDataService()
 
-    const user = await getUserDataService.execute({ id: sub })
+    const user = await service.execute({ id: sub })
     return reply.status(201).send(user)
   } catch (error) {
     if (error instanceof UserNotFoundError) {

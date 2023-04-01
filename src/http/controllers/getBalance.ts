@@ -6,9 +6,9 @@ export async function getBalance(request: FastifyRequest, reply: FastifyReply) {
   const { sub } = request.user
 
   try {
-    const getUserBalanceService = new GetUserBalanceService()
+    const service = new GetUserBalanceService()
 
-    const { balance } = await getUserBalanceService.execute({ id: sub })
+    const { balance } = await service.execute({ id: sub })
     return reply.status(200).send(balance)
   } catch (error) {
     if (error instanceof UserNotFoundError) {

@@ -8,7 +8,7 @@ import { z } from 'zod'
 export async function placeOrder(request: FastifyRequest, reply: FastifyReply) {
   const { sub } = request.user
 
-  const getOrdersBodySchema = z.object({
+  const bodySchema = z.object({
     symbol: z.string(),
     quantity: z.string(),
     order_side: z.enum(['BUY', 'SELL']),
@@ -47,7 +47,7 @@ export async function placeOrder(request: FastifyRequest, reply: FastifyReply) {
     limit_price,
     options,
     automation_id,
-  } = getOrdersBodySchema.parse(request.body)
+  } = bodySchema.parse(request.body)
 
   const newOrder: OrderDTO = {
     automation_id,
@@ -64,9 +64,9 @@ export async function placeOrder(request: FastifyRequest, reply: FastifyReply) {
   }
 
   try {
-    const placeOrderService = makePlaceOrderService()
+    const service = makePlaceOrderService()
 
-    const data = await placeOrderService.execute({
+    const data = await service.execute({
       order: newOrder,
       userId: sub,
     })

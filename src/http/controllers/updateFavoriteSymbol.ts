@@ -6,23 +6,21 @@ export async function updateFavoriteSymbol(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const updateFavoriteSymbolBodySchema = z.object({
+  const bodySchema = z.object({
     value: z.boolean(),
   })
 
-  const updateFavoriteSymbolParamsSchema = z.object({
+  const paramsSchema = z.object({
     symbol: z.string(),
   })
 
-  const { value } = updateFavoriteSymbolBodySchema.parse(request.body)
+  const { value } = bodySchema.parse(request.body)
 
-  const { symbol: symbolToUpdate } = updateFavoriteSymbolParamsSchema.parse(
-    request.params,
-  )
+  const { symbol: symbolToUpdate } = paramsSchema.parse(request.params)
 
-  const updateFavoriteSymbolService = makeUpdateFavoriteSymbolService()
+  const service = makeUpdateFavoriteSymbolService()
 
-  const { symbol } = await updateFavoriteSymbolService.execute({
+  const { symbol } = await service.execute({
     symbol: symbolToUpdate,
     value,
   })

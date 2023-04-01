@@ -17,6 +17,13 @@ import { syncSymbols } from './controllers/syncSymbols'
 import { updateFavoriteSymbol } from './controllers/updateFavoriteSymbol'
 import { updateUser } from './controllers/updateUser'
 import { verifyJwt } from './middlewares/verifyJwt'
+import { getMonitors } from './controllers/getMonitors'
+import { getMonitor } from './controllers/getMonitor'
+import { createMonitor } from './controllers/createMonitor'
+import { updateMonitor } from './controllers/updateMonitor'
+import { deleteMonitor } from './controllers/deleteMonitor'
+import { startMonitor } from './controllers/startMonitor'
+import { stopMonitor } from './controllers/stopMonitor'
 
 export async function appRoutes(app: FastifyInstance) {
   app.post('/users', registerUser)
@@ -43,6 +50,14 @@ export async function appRoutes(app: FastifyInstance) {
     { onRequest: [verifyJwt] },
     cancelOrder,
   )
+
+  app.get('/monitors', { onRequest: [verifyJwt] }, getMonitors)
+  app.get('/monitors/one/:id', { onRequest: [verifyJwt] }, getMonitor)
+  app.post('/monitors', { onRequest: [verifyJwt] }, createMonitor)
+  app.post('/monitors/start/:id', { onRequest: [verifyJwt] }, startMonitor)
+  app.post('/monitors/stop/:id', { onRequest: [verifyJwt] }, stopMonitor)
+  app.patch('/monitors/:id', { onRequest: [verifyJwt] }, updateMonitor)
+  app.delete('/monitors/:id', { onRequest: [verifyJwt] }, deleteMonitor)
 
   app.get('/exchange/balance', { onRequest: [verifyJwt] }, getBalance)
 }

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { makeUpdateUserService } from '@/services/factories/makeUpdateUserService'
 
 export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
-  const updateUserBodySchema = z.object({
+  const bodySchema = z.object({
     user: z.object({
       name: z.string().nullable(),
       password: z.string().nullable(),
@@ -16,13 +16,13 @@ export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
 
   const {
     user: { name, password, apiUrl, accessKey, streamUrl, secretKey },
-  } = updateUserBodySchema.parse(request.body)
+  } = bodySchema.parse(request.body)
 
   const { sub } = request.user
 
-  const updateUserService = makeUpdateUserService()
+  const service = makeUpdateUserService()
 
-  const { user } = await updateUserService.execute({
+  const { user } = await service.execute({
     id: sub,
     name,
     password,

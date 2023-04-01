@@ -57,5 +57,24 @@ model Order {
   updated_at       DateTime @updatedAt
   created_at       DateTime @default(now())
 
+  @@index([order_id], name: "orders_order_id_index")
   @@map("orders")
+}
+
+model Monitor {
+  id              String   @id @default(uuid())
+  symbol          String   @default("*")
+  type            String
+  broadcast_label String?
+  interval        String?
+  indexes         String?
+  is_active       Boolean  @default(false)
+  is_system_mon   Boolean  @default(false)
+  logs            Boolean  @default(false)
+  updated_at      DateTime @updatedAt
+  created_at      DateTime @default(now())
+
+  @@unique([type, symbol, interval], name: "monitors_type_symbol_interval_index")
+  @@index([symbol], name: "monitor_symbol_index")
+  @@map("monitors")
 }

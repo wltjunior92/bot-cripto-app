@@ -3,26 +3,26 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
 
 export async function getOrders(request: FastifyRequest, reply: FastifyReply) {
-  const getOrdersParamsSchema = z.object({
+  const paramsSchema = z.object({
     symbol: z.string().optional(),
   })
 
-  const getOrdersQuerySchema = z.object({
+  const querySchema = z.object({
     page: z.string().optional(),
   })
 
-  const { page: searchPage } = getOrdersQuerySchema.parse(request.query)
-  const { symbol: searchSymbol } = getOrdersParamsSchema.parse(request.params)
+  const { page: searchPage } = querySchema.parse(request.query)
+  const { symbol: searchSymbol } = paramsSchema.parse(request.params)
 
   const page = searchPage ? parseInt(searchPage) : undefined
   const symbol = searchSymbol ? searchSymbol.toUpperCase() : undefined
-  const getOrdersService = makeGetOrdersService()
+  const service = makeGetOrdersService()
 
   const {
     orders,
     totalCount: count,
     pageQty,
-  } = await getOrdersService.execute({
+  } = await service.execute({
     symbol,
     page,
   })

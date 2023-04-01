@@ -5,15 +5,15 @@ import { z } from 'zod'
 export async function syncOrder(request: FastifyRequest, reply: FastifyReply) {
   const { sub } = request.user
 
-  const getOrderParamsSchema = z.object({
+  const paramsSchema = z.object({
     orderId: z.string(),
   })
 
-  const { orderId } = getOrderParamsSchema.parse(request.params)
+  const { orderId } = paramsSchema.parse(request.params)
 
-  const syncOrdersService = makeSyncOrderService()
+  const service = makeSyncOrderService()
 
-  const { order } = await syncOrdersService.execute({
+  const { order } = await service.execute({
     id: sub,
     orderId,
   })

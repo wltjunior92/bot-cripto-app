@@ -28,10 +28,6 @@ settingsService
 
     const wss = webSocketModule(server)
 
-    const defaultUserExchangeMonitor = new ExchangeMonitor(
-      formatedSettings,
-      wss,
-    )
-    defaultUserExchangeMonitor.execute()
+    new ExchangeMonitor(formatedSettings, wss, {})
   })
   .catch((error) => console.log(error.message))
