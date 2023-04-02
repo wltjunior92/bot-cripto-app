@@ -20,10 +20,15 @@ export class PrismaOrdersRepository implements OrdersRepository {
       take: pageQty,
       skip: pageQty * (page - 1),
     }
-
+    const countOptions: Prisma.OrderCountArgs = {}
     if (symbol) {
       if (symbol.length < 6) {
         options.where = {
+          symbol: {
+            contains: symbol,
+          },
+        }
+        countOptions.where = {
           symbol: {
             contains: symbol,
           },
@@ -32,10 +37,13 @@ export class PrismaOrdersRepository implements OrdersRepository {
         options.where = {
           symbol,
         }
+        countOptions.where = {
+          symbol,
+        }
       }
     }
     const [totalCount, orders] = await prisma.$transaction([
-      prisma.order.count(),
+      prisma.order.count(countOptions),
       prisma.order.findMany(options),
     ])
 

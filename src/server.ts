@@ -3,6 +3,7 @@ import { env } from './env'
 import { ExchangeMonitor } from './modules/exchangeMonitor'
 import { makeGetUserDataService } from './services/factories/makeGetUserDataService'
 import { webSocketModule } from './modules/webSocket'
+import { intelligence } from './lib/intelligence'
 
 const settingsService = makeGetUserDataService()
 // Load default user settings
@@ -28,6 +29,6 @@ settingsService
 
     const wss = webSocketModule(server)
 
-    new ExchangeMonitor(formatedSettings, wss, {})
+    new ExchangeMonitor(formatedSettings, wss, intelligence)
   })
   .catch((error) => console.log(error.message))

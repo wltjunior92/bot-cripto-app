@@ -24,6 +24,8 @@ import { updateMonitor } from './controllers/updateMonitor'
 import { deleteMonitor } from './controllers/deleteMonitor'
 import { startMonitor } from './controllers/startMonitor'
 import { stopMonitor } from './controllers/stopMonitor'
+import { getIntelligenceMemory } from './controllers/getIntelligenceMemory'
+import { getIntelligenceBrain } from './controllers/getIntelligenceBrain'
 
 export async function appRoutes(app: FastifyInstance) {
   app.post('/users', registerUser)
@@ -58,6 +60,17 @@ export async function appRoutes(app: FastifyInstance) {
   app.post('/monitors/stop/:id', { onRequest: [verifyJwt] }, stopMonitor)
   app.patch('/monitors/:id', { onRequest: [verifyJwt] }, updateMonitor)
   app.delete('/monitors/:id', { onRequest: [verifyJwt] }, deleteMonitor)
+
+  app.get(
+    '/intelligence/memory',
+    { onRequest: [verifyJwt] },
+    getIntelligenceMemory,
+  )
+  app.get(
+    '/intelligence/brain',
+    { onRequest: [verifyJwt] },
+    getIntelligenceBrain,
+  )
 
   app.get('/exchange/balance', { onRequest: [verifyJwt] }, getBalance)
 }

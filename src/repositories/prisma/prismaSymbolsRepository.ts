@@ -67,6 +67,7 @@ export class PrismaSymbolsRepository implements SymbolsRepository {
       take: pageQty,
       skip: pageQty * (page - 1),
     }
+    const countOptions: Prisma.SymbolCountArgs = {}
     if (search) {
       if (search.length < 6) {
         options.where = {
@@ -74,8 +75,16 @@ export class PrismaSymbolsRepository implements SymbolsRepository {
             contains: search,
           },
         }
+        countOptions.where = {
+          symbol: {
+            contains: search,
+          },
+        }
       } else {
         options.where = {
+          symbol: search,
+        }
+        countOptions.where = {
           symbol: search,
         }
       }
@@ -88,9 +97,16 @@ export class PrismaSymbolsRepository implements SymbolsRepository {
           is_favorite: true,
         }
       }
+      if (countOptions.where) {
+        countOptions.where.is_favorite = true
+      } else {
+        countOptions.where = {
+          is_favorite: true,
+        }
+      }
     }
     const [totalCount, symbols] = await prisma.$transaction([
-      prisma.symbol.count(),
+      prisma.symbol.count(countOptions),
       prisma.symbol.findMany(options),
     ])
 

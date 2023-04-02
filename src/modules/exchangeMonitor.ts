@@ -8,6 +8,7 @@ import { Server, WebSocket } from 'ws'
 import { makeGetActiveMonitorsService } from '@/services/factories/makeGetActiveMonitorsService'
 import * as sysIndexes from '../utils/indexes'
 import { indexKeys, monitorTypes } from '@/utils/constants'
+import { Intelligence } from './intelligence'
 
 export type Settings = {
   access_key: string
@@ -19,20 +20,20 @@ export type Settings = {
 export class ExchangeMonitor {
   private exchange
   private wss
-  private beholder
+  private intelligence: Intelligence
 
   constructor(
     settings: Settings,
     wss: Server<WebSocket>,
-    beholderInstance: any,
+    intelligenceInstance: Intelligence,
   ) {
-    if (!settings || !beholderInstance) {
+    if (!settings || !intelligenceInstance) {
       throw new InvalidExchangeSettingsError('ExchangeMonitor')
     }
 
     this.exchange = new BinanceExchange(settings)
     this.wss = wss
-    this.beholder = beholderInstance
+    this.intelligence = intelligenceInstance
 
     const getActiveMonitorsService = makeGetActiveMonitorsService()
     getActiveMonitorsService
@@ -74,7 +75,22 @@ export class ExchangeMonitor {
     this.exchange.miniTickerStream((markets) => {
       if (logs) console.log(markets)
 
-      // enviar para o beholders
+      // enviar para o intelligence
+      Object.entries(markets).forEach((mkt: any) => {
+        delete mkt[1].volume
+        delete mkt[1].quoteVolume
+        delete mkt[1].eventTime
+        const converted: any = {}
+        Object.entries(mkt[1]).forEach(
+          (prop: any) => (converted[prop[0]] = parseFloat(prop[1])),
+        )
+        this.intelligence.updateMemory(
+          mkt[0],
+          indexKeys.MINI_TICKER,
+          null,
+          converted,
+        )
+      })
 
       if (broadcastLabel && this.wss) {
         this.broadcast({ [broadcastLabel]: markets })
@@ -82,7 +98,14 @@ export class ExchangeMonitor {
 
       // simulação de book
       const books = Object.entries(markets).map((mkt) => {
-        return { symbol: mkt[0], bestAsk: mkt[1].close, bestBid: mkt[1].close }
+        const book = {
+          symbol: mkt[0],
+          bestAsk: mkt[1].close,
+          bestBid: mkt[1].close,
+        }
+
+        this.intelligence.updateMemory(mkt[0], indexKeys.BOOK, null, book)
+        return book
       })
       if (this.wss) {
         this.broadcast({ book: books })
@@ -161,7 +184,15 @@ export class ExchangeMonitor {
         .updateByOrderId(`${order.order_id}`, `${order.client_order_id}`, order)
         .then((order) => {
           if (order) {
-            // enviar para o beholder
+            // enviar para o intelligence
+
+            this.intelligence.updateMemory(
+              order.symbol,
+              indexKeys.LAST_ORDER,
+              null,
+              order,
+            )
+
             if (broadcastLabel && this.wss) {
               this.broadcast({ [broadcastLabel]: order })
             }
@@ -193,7 +224,13 @@ export class ExchangeMonitor {
 
       if (logs) console.log(lastCandle)
 
-      // enviar para o beholder
+      // enviar para o intelligence
+      this.intelligence.updateMemory(
+        symbol,
+        indexKeys.LAST_CANDLE,
+        interval,
+        lastCandle,
+      )
 
       if (broadcastLabel && this.wss) {
         this.broadcast(lastCandle)
@@ -209,7 +246,15 @@ export class ExchangeMonitor {
       return new Error('ExchangeMonitor ainda não foi inicializado.')
     const info = await this.exchange.balance()
     const wallet = Object.entries(info).map((item: any) => {
-      // enviar para o beholder
+      // enviar para o intelligence
+
+      this.intelligence.updateMemory(
+        item[0],
+        indexKeys.WALLET,
+        null,
+        parseFloat(item[1].available),
+      )
+
       return {
         symbol: item[0],
         available: item[1].available,
@@ -228,14 +273,20 @@ export class ExchangeMonitor {
     indexes.map((index) => {
       switch (index) {
         case indexKeys.RSI: {
-          // sysIndexes.RSI(ohlc.close)
-          // calc enviar beholder
-          break
+          return this.intelligence.updateMemory(
+            symbol,
+            indexKeys.RSI,
+            interval,
+            sysIndexes.RSI(ohlc.close),
+          )
         }
         case indexKeys.MACD: {
-          // sysIndexes.MACD(ohlc.close)
-          // calc enviar beholder
-          break
+          return this.intelligence.updateMemory(
+            symbol,
+            indexKeys.MACD,
+            interval,
+            sysIndexes.MACD(ohlc.close),
+          )
         }
         default:
           break

@@ -26,7 +26,7 @@ export function MACD(
     signalPeriod,
   })
   return {
-    current: parseFloat(`${result[result.length - 1]}`),
-    previous: parseFloat(`${result[result.length - 2]}`),
+    current: result[result.length - 1],
+    previous: result[result.length - 2],
   }
 }

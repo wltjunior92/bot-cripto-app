@@ -6,6 +6,12 @@ export const monitorTypes = {
 }
 
 export const indexKeys = {
+  MINI_TICKER: 'MINI_TICKER',
+  BOOK: 'BOOK',
+  WALLET: 'WALLET',
+  LAST_ORDER: 'LAST_ORDER',
+  LAST_CANDLE: 'LAST_CANDLE',
+
   RSI: 'RSI',
   MACD: 'MACD',
 }
